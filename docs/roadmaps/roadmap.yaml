@@ -12,7 +12,10 @@ roadmap:
   created: 2026-10-12T19:47:15Z
   updated: 2026-10-12T19:47:15Z
   spec: null
-  acceptance_criteria: []
+  acceptance_criteria:
+  - "docs/roadmaps/roadmap.yaml carries this ticket under epic #3."
+  - "v0.1.0 is an annotated tag on a main commit whose CI gate is green."
+  - "Tags are new, never moved."
   phases: []
   subtasks: []
   estimated_effort: null
