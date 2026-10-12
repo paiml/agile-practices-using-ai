@@ -13,4 +13,4 @@ cargo run -p story-contract -- crates/story-contract/samples/bad-story.txt   # R
 ```
 
 Contract: [`contracts/story-contract-v1.yaml`](../../contracts/story-contract-v1.yaml).
-Falsifiers: `falsify_story_without_criteria_is_refused`, `falsify_blank_then_is_refused`.
+Falsifiers: `falsify_story_without_criteria_is_refused`, `falsify_blank_part_is_refused`.

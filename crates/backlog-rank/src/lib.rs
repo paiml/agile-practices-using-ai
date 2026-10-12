@@ -50,14 +50,16 @@ pub fn rank(items: &[Item]) -> Vec<Item> {
     out
 }
 
-/// Reads `id,value,effort,risk` lines. A header line starting with `id` and
-/// lines starting with `#` are skipped. Zero effort and duplicate ids are refused.
+/// Reads `id,value,effort,risk` lines. The exact header line
+/// `id,value,effort,risk` and lines starting with `#` are skipped, so an item
+/// whose id is `id` is still read. Zero effort and duplicate ids are refused.
 pub fn parse(text: &str) -> Result<Vec<Item>, ParseError> {
     let mut items: Vec<Item> = Vec::new();
     for (n, raw) in text.lines().enumerate() {
         let line = n + 1;
         let raw = raw.trim();
-        if raw.is_empty() || raw.starts_with('#') || raw.starts_with("id,") {
+        if raw.is_empty() || raw.starts_with('#') || raw.replace(' ', "") == "id,value,effort,risk"
+        {
             continue;
         }
         let err = |reason: &str| ParseError {
@@ -143,6 +145,11 @@ mod tests {
     #[test]
     fn duplicate_id_is_refused() {
         assert!(parse("X,1,1,1\nX,2,1,1").is_err());
+    }
+
+    #[test]
+    fn an_item_named_id_is_read() {
+        assert_eq!(parse("id,1,1,1").map(|v| v.len()), Ok(1));
     }
 
     #[test]

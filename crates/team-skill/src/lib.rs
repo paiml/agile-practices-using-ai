@@ -42,15 +42,21 @@ fn frontmatter(text: &str) -> Option<Vec<(String, String)>> {
             }
         } else if let Some((k, v)) = line.split_once(':') {
             let v = v.trim();
-            let v = if [">", "|", ">-", "|-"].contains(&v) {
-                ""
-            } else {
-                v
-            };
+            let v = if is_block_or_null(v) { "" } else { v };
             out.push((k.trim().to_string(), v.to_string()));
         }
     }
     None
+}
+
+/// True for a YAML block scalar indicator (`>`, `|`, with an optional chomping
+/// or indent indicator such as `>-`, `|+` or `>2`) and for YAML null (`~`, `null`).
+fn is_block_or_null(v: &str) -> bool {
+    let block = v.starts_with(['>', '|'])
+        && v[1..]
+            .chars()
+            .all(|c| c == '+' || c == '-' || c.is_ascii_digit());
+    block || v == "~" || v.eq_ignore_ascii_case("null")
 }
 
 #[cfg(test)]
@@ -83,6 +89,14 @@ mod tests {
             ["description"]
         );
         assert!(missing_keys("---\nname: retro\ndescription: >\n  Run a retro.\n---\n").is_empty());
+    }
+
+    #[test]
+    fn keep_chomping_and_null_are_blank() {
+        for v in ["|+", ">+", ">2-", "~", "null", "Null"] {
+            let text = format!("---\nname: retro\ndescription: {v}\n---\n");
+            assert_eq!(missing_keys(&text), ["description"], "value {v}");
+        }
     }
 
     #[test]

@@ -39,7 +39,8 @@ equations:
     - every returned item has effort >= 1
     - returned ids are distinct
     invariants:
-    - header, blank and # lines never change the result
+    - only the exact header line is skipped, so an item whose id is "id" is read
+    - blank and # lines never change the result
 proof_obligations:
 - type: invariant
   property: Ranking loses and duplicates nothing

@@ -18,7 +18,8 @@ equations:
     - an unclosed frontmatter block misses every key
     invariants:
     - surrounding quotes do not make an empty value non-empty
-    - a block scalar (> or |) takes its value from the indented lines below it
+    - a block scalar (> or |, with any chomping or indent indicator) takes its value from the indented lines below it
+    - YAML null (~ or null) is blank
 proof_obligations:
 - type: invariant
   property: A skill without a description is reported
