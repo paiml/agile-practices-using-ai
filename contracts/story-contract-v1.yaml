@@ -46,9 +46,9 @@ falsification_tests:
   test: cargo test -p story-contract falsify_story_without_criteria_is_refused
   if_fails: A story with nothing to test against could be marked ready
 - id: FALSIFY-STORY-002
-  rule: Every criterion has a Then
-  prediction: validate refuses a criterion whose Then is only whitespace
-  test: cargo test -p story-contract falsify_blank_then_is_refused
+  rule: Every criterion has a Given, a When and a Then
+  prediction: validate refuses a criterion whose given, when or then is blank, naming that part
+  test: cargo test -p story-contract falsify_blank_part_is_refused
   if_fails: A criterion with no observable outcome could pass review
 - id: FALSIFY-STORY-003
   rule: A criterion belongs to a story

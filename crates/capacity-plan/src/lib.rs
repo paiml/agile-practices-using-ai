@@ -58,13 +58,13 @@ pub fn load(items: &[Estimate], plan: &Plan) -> Vec<u32> {
         .collect()
 }
 
-/// Reads `id,points` lines; `#` lines and an `id,` header are skipped.
+/// Reads `id,points` lines; `#` lines and the exact header `id,points` are skipped.
 /// A duplicate id is refused, so no item can be planned twice.
 pub fn parse(text: &str) -> Result<Vec<Estimate>, String> {
     let mut out = Vec::new();
     for (n, raw) in text.lines().enumerate() {
         let raw = raw.trim();
-        if raw.is_empty() || raw.starts_with('#') || raw.starts_with("id,") {
+        if raw.is_empty() || raw.starts_with('#') || raw.replace(' ', "") == "id,points" {
             continue;
         }
         let (id, points) = raw
@@ -159,6 +159,11 @@ mod tests {
     fn zero_sprints_overflow_everything() {
         let p = plan(&backlog(), 13, 0);
         assert_eq!(p.overflow.len(), backlog().len());
+    }
+
+    #[test]
+    fn an_item_named_id_is_read() {
+        assert_eq!(parse("id,3").map(|v| v.len()), Ok(1));
     }
 
     #[test]

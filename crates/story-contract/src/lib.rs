@@ -176,18 +176,24 @@ mod tests {
         );
     }
 
-    /// FALSIFY-STORY-002: a criterion with a blank part is refused.
+    /// FALSIFY-STORY-002: a criterion with a blank given, when or then is refused.
     #[test]
-    fn falsify_blank_then_is_refused() {
-        let err = validate(&story(vec![crit("a board", "I add a card", "  ")]));
-        assert_eq!(
-            err,
-            Err(StoryError::EmptyPart {
-                id: "S-1".into(),
-                index: 0,
-                part: "then"
-            })
-        );
+    fn falsify_blank_part_is_refused() {
+        let cases = [
+            ("given", crit(" ", "I add a card", "it is in To Do")),
+            ("when", crit("a board", "", "it is in To Do")),
+            ("then", crit("a board", "I add a card", "  ")),
+        ];
+        for (part, c) in cases {
+            assert_eq!(
+                validate(&story(vec![c])),
+                Err(StoryError::EmptyPart {
+                    id: "S-1".into(),
+                    index: 0,
+                    part
+                })
+            );
+        }
     }
 
     #[test]
