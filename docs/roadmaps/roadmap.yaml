@@ -1,0 +1,22 @@
+roadmap_version: '1.0'
+github_enabled: true
+github_repo: paiml/agile-practices-using-ai
+roadmap:
+- id: PMAT-004
+  github_issue: 4
+  item_type: task
+  title: 'release spine: tagged release v0.1.0 cadence per manifest'
+  status: planned
+  priority: medium
+  assigned_to: null
+  created: 2026-10-12T19:47:15Z
+  updated: 2026-10-12T19:47:15Z
+  spec: null
+  acceptance_criteria: []
+  phases: []
+  subtasks: []
+  estimated_effort: null
+  labels:
+  - kind:code
+  notes: null
+  epic: 3
