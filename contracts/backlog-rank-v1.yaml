@@ -1,0 +1,87 @@
+metadata:
+  version: 1.0.0
+  kind: pattern
+  created: '2026-10-12'
+  author: Pragmatic AI Labs
+  description: Backlog ranking is a total order on items, so the same backlog always gives the same order and no item is lost or duplicated
+  references:
+  - Reinertsen (2009) The Principles of Product Development Flow, Celeritas
+  - Leffingwell (2010) Agile Software Requirements, Addison-Wesley (WSJF)
+equations:
+  rank_compare:
+    formula: a < b <=> v(a)*e(b) > v(b)*e(a) OR (equal AND r(a) > r(b)) OR (equal AND equal AND id(a) < id(b))
+    domain: items with value v, effort e >= 1, risk r, all u32; products taken in u64
+    codomain: Ordering
+    preconditions:
+    - effort >= 1 for both items
+    postconditions:
+    - compare(a, b) = Equal only when a.id = b.id
+    invariants:
+    - no division, so no rounding and no divide by zero
+  rank_total_order:
+    formula: rank(xs) = sort_by(xs, compare)
+    domain: a list of items with distinct ids
+    codomain: a list of the same items
+    preconditions:
+    - ids are distinct (parse refuses duplicates)
+    postconditions:
+    - rank(xs) is a permutation of xs
+    - rank(xs) is sorted by compare
+    invariants:
+    - rank(xs) = rank(permute(xs)) for every permutation
+  backlog_parse:
+    formula: parse(text) = items in file order, refusing effort 0 and duplicate ids
+    domain: UTF-8 lines id,value,effort,risk
+    codomain: Ok(Vec<Item>) or ParseError naming the 1-based line
+    preconditions:
+    - text is valid UTF-8
+    postconditions:
+    - every returned item has effort >= 1
+    - returned ids are distinct
+    invariants:
+    - header, blank and # lines never change the result
+proof_obligations:
+- type: invariant
+  property: Ranking loses and duplicates nothing
+  formal: 'forall xs: multiset(rank(xs)) = multiset(xs)'
+  applies_to: all
+- type: invariant
+  property: Ranking does not depend on input order
+  formal: 'forall xs, p permutation: rank(p(xs)) = rank(xs)'
+  applies_to: all
+- type: precondition
+  property: Effort is never zero
+  formal: 'forall i in parse(text): i.effort >= 1'
+  applies_to: all
+falsification_tests:
+- id: FALSIFY-RANK-001
+  rule: Ranking is a permutation
+  prediction: the ranked ids, sorted, equal the input ids, sorted
+  test: cargo test -p backlog-rank falsify_rank_is_a_permutation
+  if_fails: An item was dropped or duplicated while ranking
+- id: FALSIFY-RANK-002
+  rule: Ranking is order independent
+  prediction: ranking the reversed backlog gives the same order
+  test: cargo test -p backlog-rank falsify_rank_is_order_independent
+  if_fails: Ties are broken by input position, so the order is not reproducible
+- id: FALSIFY-RANK-003
+  rule: Zero effort is refused
+  prediction: parse refuses a line whose effort is 0
+  test: cargo test -p backlog-rank falsify_zero_effort_is_refused
+  if_fails: A zero-effort item would rank above everything
+- id: FALSIFY-RANK-004
+  rule: Ties are broken by risk then id
+  prediction: equal value per effort ranks the riskier item first, then the smaller id
+  test: cargo test -p backlog-rank ranks_by_value_per_effort_then_risk_then_id
+  if_fails: The tiebreak is not the documented one
+qa_gate:
+  id: F-RANK-001
+  name: Backlog rank contract
+  description: Ranking is deterministic and conserves the backlog
+  checks:
+  - FALSIFY-RANK-001
+  - FALSIFY-RANK-002
+  - FALSIFY-RANK-003
+  - FALSIFY-RANK-004
+  pass_criteria: All 4 falsification tests pass
+  falsification: A ranked backlog loses an item or depends on input order

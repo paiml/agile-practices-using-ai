@@ -1,0 +1,5 @@
+#!/bin/sh
+# Git hook: copy to .git/hooks/pre-push and make it executable.
+# A push goes through only when the gate says Done.
+set -eu
+exec cargo run --quiet -p done-gate -- crates/done-gate/samples/checks.txt

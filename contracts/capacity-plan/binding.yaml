@@ -1,0 +1,21 @@
+version: 1.0.0
+target_crate: capacity_plan
+bindings:
+- contract: capacity-plan-v1.yaml
+  equation: capacity_respected
+  function: plan
+  module_path: capacity_plan::plan
+  signature: 'pub fn plan(items: &[Estimate], capacity: u32, sprints: usize) -> Plan'
+  status: implemented
+- contract: capacity-plan-v1.yaml
+  equation: sprint_load
+  function: load
+  module_path: capacity_plan::load
+  signature: 'pub fn load(items: &[Estimate], plan: &Plan) -> Vec<u32>'
+  status: implemented
+- contract: capacity-plan-v1.yaml
+  equation: estimates_parse
+  function: parse
+  module_path: capacity_plan::parse
+  signature: 'pub fn parse(text: &str) -> Result<Vec<Estimate>, String>'
+  status: implemented

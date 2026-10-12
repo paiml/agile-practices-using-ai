@@ -1,0 +1,75 @@
+metadata:
+  version: 1.0.0
+  kind: pattern
+  created: '2026-10-12'
+  author: Pragmatic AI Labs
+  description: A five whys chain is accepted only with a problem, at least five distinct whys and an action
+  references:
+  - Ohno (1988) Toyota Production System, Productivity Press
+  - Derby and Larsen (2006) Agile Retrospectives, Pragmatic Bookshelf
+equations:
+  chain_well_formed:
+    formula: ok(c) <=> problem(c) != "" AND |whys(c)| >= 5 AND distinct(lower(trim(whys(c)))) AND action(c) != ""
+    domain: c a Chain parsed from Problem, Why and Action lines
+    codomain: Ok(()) or the first ChainError in the order NoProblem, TooShallow, Repeated, NoAction
+    preconditions:
+    - whys are in the order they were asked
+    postconditions:
+    - Repeated names the first why that repeats an earlier one
+    invariants:
+    - whys are compared ignoring case and surrounding whitespace
+  chain_parse:
+    formula: 'parse(text) = Chain from "Problem:", "Why:" and "Action:" lines, whys in file order'
+    domain: UTF-8 text
+    codomain: Ok(Chain) or an error naming the 1-based line
+    preconditions:
+    - text is valid UTF-8
+    postconditions:
+    - an unknown key is an error, not ignored
+    invariants:
+    - blank and # lines never change the result
+proof_obligations:
+- type: bound
+  property: At least five whys
+  formal: 'forall c: |whys(c)| < 5 => validate(c) = Err(TooShallow)'
+  applies_to: all
+- type: invariant
+  property: No cycles
+  formal: 'forall c, i < j: lower(whys(c)[i]) = lower(whys(c)[j]) => validate(c) is Err'
+  applies_to: all
+- type: invariant
+  property: The chain ends in an action
+  formal: 'forall c: blank(action(c)) => validate(c) is Err'
+  applies_to: all
+falsification_tests:
+- id: FALSIFY-WHY-001
+  rule: Depth four is refused
+  prediction: a chain with four whys is TooShallow
+  test: cargo test -p five-whys falsify_depth_four_is_refused
+  if_fails: The retro could stop at a symptom
+- id: FALSIFY-WHY-002
+  rule: A repeated why is refused
+  prediction: a why equal to an earlier one, ignoring case, is Repeated at its index
+  test: cargo test -p five-whys falsify_cycle_is_refused
+  if_fails: The chain could circle back and look deep while saying nothing new
+- id: FALSIFY-WHY-003
+  rule: An action is required
+  prediction: a blank action is NoAction
+  test: cargo test -p five-whys falsify_missing_action_is_refused
+  if_fails: The retro could find a root cause and change nothing
+- id: FALSIFY-WHY-004
+  rule: The sample chain parses and is well formed
+  prediction: the sample retro parses and validates
+  test: cargo test -p five-whys sample_chain_is_well_formed
+  if_fails: The documented file format and the parser disagree
+qa_gate:
+  id: F-WHY-001
+  name: Five whys contract
+  description: Root-cause chains are deep, acyclic and end in an action
+  checks:
+  - FALSIFY-WHY-001
+  - FALSIFY-WHY-002
+  - FALSIFY-WHY-003
+  - FALSIFY-WHY-004
+  pass_criteria: All 4 falsification tests pass
+  falsification: A shallow, cyclic or action-less chain is accepted

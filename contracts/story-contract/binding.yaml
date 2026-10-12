@@ -1,0 +1,15 @@
+version: 1.0.0
+target_crate: story_contract
+bindings:
+- contract: story-contract-v1.yaml
+  equation: story_has_ac
+  function: validate
+  module_path: story_contract::validate
+  signature: 'pub fn validate(story: &Story) -> Result<(), StoryError>'
+  status: implemented
+- contract: story-contract-v1.yaml
+  equation: story_parse
+  function: parse
+  module_path: story_contract::parse
+  signature: 'pub fn parse(text: &str) -> Result<Vec<Story>, StoryError>'
+  status: implemented

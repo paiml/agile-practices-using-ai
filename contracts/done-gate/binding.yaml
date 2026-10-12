@@ -1,0 +1,21 @@
+version: 1.0.0
+target_crate: done_gate
+bindings:
+- contract: done-gate-v1.yaml
+  equation: done_iff_all_green
+  function: verdict
+  module_path: done_gate::verdict
+  signature: 'pub fn verdict(results: &[(String, bool)]) -> Verdict'
+  status: implemented
+- contract: done-gate-v1.yaml
+  equation: check_run
+  function: run
+  module_path: done_gate::run
+  signature: 'pub fn run(check: &Check) -> bool'
+  status: implemented
+- contract: done-gate-v1.yaml
+  equation: checks_parse
+  function: parse
+  module_path: done_gate::parse
+  signature: 'pub fn parse(text: &str) -> Result<Vec<Check>, String>'
+  status: implemented
