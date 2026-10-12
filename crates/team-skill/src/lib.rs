@@ -29,13 +29,25 @@ fn frontmatter(text: &str) -> Option<Vec<(String, String)>> {
     if lines.next()?.trim_end() != "---" {
         return None;
     }
-    let mut out = Vec::new();
+    let mut out: Vec<(String, String)> = Vec::new();
     for line in lines {
         if line.trim_end() == "---" {
             return Some(out);
         }
-        if let Some((k, v)) = line.split_once(':') {
-            out.push((k.trim().to_string(), v.trim().to_string()));
+        if line.starts_with(char::is_whitespace) {
+            // A continuation line of a block scalar (`key: >` or `key: |`).
+            if let Some((_, v)) = out.last_mut() {
+                v.push(' ');
+                v.push_str(line.trim());
+            }
+        } else if let Some((k, v)) = line.split_once(':') {
+            let v = v.trim();
+            let v = if [">", "|", ">-", "|-"].contains(&v) {
+                ""
+            } else {
+                v
+            };
+            out.push((k.trim().to_string(), v.to_string()));
         }
     }
     None
@@ -62,6 +74,15 @@ mod tests {
     #[test]
     fn falsify_unclosed_frontmatter_fails() {
         assert_eq!(missing_keys("---\nname: retro\ndescription: x\n"), REQUIRED);
+    }
+
+    #[test]
+    fn block_scalar_needs_a_body() {
+        assert_eq!(
+            missing_keys("---\nname: retro\ndescription: >\n---\n"),
+            ["description"]
+        );
+        assert!(missing_keys("---\nname: retro\ndescription: >\n  Run a retro.\n---\n").is_empty());
     }
 
     #[test]

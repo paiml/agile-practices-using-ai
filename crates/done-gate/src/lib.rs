@@ -136,6 +136,18 @@ mod tests {
         assert!(!run(&check));
     }
 
+    /// FALSIFY-DONE-005: the exit status decides, not whether the program started.
+    #[test]
+    fn falsify_exit_status_decides() {
+        let check = |program: &str| Check {
+            name: program.into(),
+            program: program.into(),
+            args: vec![],
+        };
+        assert!(run(&check("true")));
+        assert!(!run(&check("false")));
+    }
+
     #[test]
     fn sample_checks_parse() {
         let checks = parse(include_str!("../samples/checks.txt")).expect("parses");

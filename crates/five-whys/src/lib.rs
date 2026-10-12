@@ -23,6 +23,7 @@ pub struct Chain {
 pub enum ChainError {
     TooShallow { depth: usize },
     Repeated { index: usize },
+    BlankWhy { index: usize },
     NoAction,
     NoProblem,
 }
@@ -36,6 +37,7 @@ impl fmt::Display for ChainError {
             Self::Repeated { index } => {
                 write!(f, "why {} repeats an earlier answer (a cycle)", index + 1)
             }
+            Self::BlankWhy { index } => write!(f, "why {} is blank", index + 1),
             Self::NoAction => write!(f, "the chain ends without an action"),
             Self::NoProblem => write!(f, "the chain has no problem statement"),
         }
@@ -57,10 +59,12 @@ pub fn validate(chain: &Chain) -> Result<(), ChainError> {
     }
     for (index, why) in chain.whys.iter().enumerate() {
         let key = why.trim().to_lowercase();
-        if key.is_empty()
-            || chain.whys[..index]
-                .iter()
-                .any(|w| w.trim().to_lowercase() == key)
+        if key.is_empty() {
+            return Err(ChainError::BlankWhy { index });
+        }
+        if chain.whys[..index]
+            .iter()
+            .any(|w| w.trim().to_lowercase() == key)
         {
             return Err(ChainError::Repeated { index });
         }
@@ -138,6 +142,14 @@ mod tests {
     #[test]
     fn falsify_missing_action_is_refused() {
         assert_eq!(validate(&chain(&FIVE, " ")), Err(ChainError::NoAction));
+    }
+
+    #[test]
+    fn blank_why_is_refused() {
+        assert_eq!(
+            validate(&chain(&["a", "b", " ", "d", "e"], "x")),
+            Err(ChainError::BlankWhy { index: 2 })
+        );
     }
 
     #[test]

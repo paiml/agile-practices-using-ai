@@ -11,7 +11,7 @@ equations:
   chain_well_formed:
     formula: ok(c) <=> problem(c) != "" AND |whys(c)| >= 5 AND distinct(lower(trim(whys(c)))) AND action(c) != ""
     domain: c a Chain parsed from Problem, Why and Action lines
-    codomain: Ok(()) or the first ChainError in the order NoProblem, TooShallow, Repeated, NoAction
+    codomain: Ok(()) or the first ChainError in the order NoProblem, TooShallow, BlankWhy or Repeated (by index), NoAction
     preconditions:
     - whys are in the order they were asked
     postconditions:

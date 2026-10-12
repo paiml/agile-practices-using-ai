@@ -18,6 +18,7 @@ equations:
     - empty result iff every required section has a non-blank line before the next level 1 or 2 heading
     invariants:
     - level 3 and deeper headings are part of the section body
+    - when a heading appears more than once, every occurrence needs a body
 proof_obligations:
 - type: invariant
   property: A missing Definition of Done is reported

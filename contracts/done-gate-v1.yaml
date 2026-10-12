@@ -73,6 +73,11 @@ falsification_tests:
   prediction: the sample checks parse and include a cargo check
   test: cargo test -p done-gate sample_checks_parse
   if_fails: The documented file format and the parser disagree
+- id: FALSIFY-DONE-005
+  rule: The exit status decides
+  prediction: run is true for a program that exits 0 and false for one that exits non-zero
+  test: cargo test -p done-gate falsify_exit_status_decides
+  if_fails: A check that starts and then fails would count as green
 qa_gate:
   id: F-DONE-001
   name: Done gate contract
@@ -82,5 +87,6 @@ qa_gate:
   - FALSIFY-DONE-002
   - FALSIFY-DONE-003
   - FALSIFY-DONE-004
-  pass_criteria: All 4 falsification tests pass
+  - FALSIFY-DONE-005
+  pass_criteria: All 5 falsification tests pass
   falsification: The gate exits 0 with a red, missing or absent check

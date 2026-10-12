@@ -47,6 +47,7 @@ equations:
     - text is valid UTF-8
     postconditions:
     - file order is kept, because the plan is filled in backlog order
+    - returned ids are distinct
     invariants:
     - header, blank and # lines never change the result
 proof_obligations:
@@ -79,6 +80,16 @@ falsification_tests:
   prediction: the sample file parses to a non-empty list
   test: cargo test -p capacity-plan sample_file_parses
   if_fails: The documented file format and the parser disagree
+- id: FALSIFY-CAP-005
+  rule: The capacity boundary is exact
+  prediction: an item one point over capacity overflows, and items that fill capacity exactly are planned
+  test: cargo test -p capacity-plan falsify_capacity_boundary_is_exact
+  if_fails: The plan is off by one at the capacity line
+- id: FALSIFY-CAP-006
+  rule: Duplicate ids are refused
+  prediction: parse refuses a second line with an id already seen
+  test: cargo test -p capacity-plan falsify_duplicate_id_is_refused
+  if_fails: The same item could be planned twice and double count its points
 qa_gate:
   id: F-CAP-001
   name: Capacity plan contract
@@ -88,5 +99,7 @@ qa_gate:
   - FALSIFY-CAP-002
   - FALSIFY-CAP-003
   - FALSIFY-CAP-004
-  pass_criteria: All 4 falsification tests pass
+  - FALSIFY-CAP-005
+  - FALSIFY-CAP-006
+  pass_criteria: All 6 falsification tests pass
   falsification: A sprint is over capacity or an item is lost

@@ -59,6 +59,7 @@ pub fn load(items: &[Estimate], plan: &Plan) -> Vec<u32> {
 }
 
 /// Reads `id,points` lines; `#` lines and an `id,` header are skipped.
+/// A duplicate id is refused, so no item can be planned twice.
 pub fn parse(text: &str) -> Result<Vec<Estimate>, String> {
     let mut out = Vec::new();
     for (n, raw) in text.lines().enumerate() {
@@ -73,8 +74,12 @@ pub fn parse(text: &str) -> Result<Vec<Estimate>, String> {
             .trim()
             .parse()
             .map_err(|_| format!("line {}: points is not a whole number", n + 1))?;
+        let id = id.trim();
+        if out.iter().any(|e: &Estimate| e.id == id) {
+            return Err(format!("line {}: duplicate id `{id}`", n + 1));
+        }
         out.push(Estimate {
-            id: id.trim().to_string(),
+            id: id.to_string(),
             points,
         });
     }
@@ -126,6 +131,22 @@ mod tests {
         let mut want: Vec<String> = items.iter().map(|i| i.id.clone()).collect();
         want.sort();
         assert_eq!(seen, want);
+    }
+
+    /// FALSIFY-CAP-005: one point over capacity overflows; an exact fill is planned.
+    #[test]
+    fn falsify_capacity_boundary_is_exact() {
+        let over = plan(&[est("OVER", 14)], 13, 1);
+        assert_eq!(over.overflow, ["OVER"]);
+        let exact = plan(&[est("A", 8), est("B", 5)], 13, 1);
+        assert_eq!(exact.sprints[0], ["A", "B"]);
+        assert!(exact.overflow.is_empty());
+    }
+
+    /// FALSIFY-CAP-006: a duplicate id is refused, so it cannot be planned twice.
+    #[test]
+    fn falsify_duplicate_id_is_refused() {
+        assert!(parse("A,5\nA,8").is_err());
     }
 
     #[test]

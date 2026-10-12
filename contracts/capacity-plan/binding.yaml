@@ -19,3 +19,9 @@ bindings:
   module_path: capacity_plan::parse
   signature: 'pub fn parse(text: &str) -> Result<Vec<Estimate>, String>'
   status: implemented
+- contract: capacity-plan-v1.yaml
+  equation: work_conserved
+  function: plan
+  module_path: capacity_plan::plan
+  signature: 'pub fn plan(items: &[Estimate], capacity: u32, sprints: usize) -> Plan'
+  status: implemented

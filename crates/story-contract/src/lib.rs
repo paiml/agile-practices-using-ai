@@ -121,6 +121,7 @@ fn parse_criterion(text: &str, line: usize) -> Result<Criterion, StoryError> {
     };
     let strip = |s: &str, kw: &str| -> Result<String, StoryError> {
         s.strip_prefix(kw)
+            .filter(|r| r.is_empty() || r.starts_with(char::is_whitespace))
             .map(|r| r.trim().to_string())
             .ok_or(StoryError::Parse {
                 line,
@@ -195,6 +196,11 @@ mod tests {
         let stories = parse(text).expect("sample parses");
         assert!(!stories.is_empty());
         assert!(stories.iter().all(|s| validate(s).is_ok()));
+    }
+
+    #[test]
+    fn keyword_must_be_a_whole_word() {
+        assert!(parse("S-1: t\n  Givenx a | When b | Then c").is_err());
     }
 
     #[test]

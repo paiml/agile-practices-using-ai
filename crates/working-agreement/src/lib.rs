@@ -17,18 +17,21 @@ pub fn missing_sections(text: &str) -> Vec<&'static str> {
         .collect()
 }
 
-/// True when `## <name>` is a heading and at least one non-blank line follows
-/// it before the next heading of level 1 or 2.
+/// True when `## <name>` is a heading, and every heading with that name has at
+/// least one non-blank line before the next heading of level 1 or 2.
 fn has_section(text: &str, name: &str) -> bool {
-    let mut lines = text.lines();
-    while let Some(line) = lines.next() {
-        if line.trim_end() == format!("## {name}") {
-            return lines
+    let heading = format!("## {name}");
+    let lines: Vec<&str> = text.lines().collect();
+    let starts: Vec<usize> = (0..lines.len())
+        .filter(|&i| lines[i].trim_end() == heading)
+        .collect();
+    !starts.is_empty()
+        && starts.iter().all(|&i| {
+            lines[i + 1..]
+                .iter()
                 .take_while(|l| !(l.starts_with("# ") || l.starts_with("## ")))
-                .any(|l| !l.trim().is_empty());
-        }
-    }
-    false
+                .any(|l| !l.trim().is_empty())
+        })
 }
 
 #[cfg(test)]
@@ -53,6 +56,12 @@ mod tests {
     #[test]
     fn falsify_empty_section_fails() {
         let text = COMPLETE.replace("- one reviewer\n", "\n");
+        assert_eq!(missing_sections(&text), ["Review"]);
+    }
+
+    #[test]
+    fn repeated_empty_heading_fails() {
+        let text = format!("{COMPLETE}## Review\n\n");
         assert_eq!(missing_sections(&text), ["Review"]);
     }
 

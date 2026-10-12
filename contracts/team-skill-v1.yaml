@@ -18,6 +18,7 @@ equations:
     - an unclosed frontmatter block misses every key
     invariants:
     - surrounding quotes do not make an empty value non-empty
+    - a block scalar (> or |) takes its value from the indented lines below it
 proof_obligations:
 - type: invariant
   property: A skill without a description is reported
