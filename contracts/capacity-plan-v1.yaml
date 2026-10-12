@@ -1,0 +1,105 @@
+metadata:
+  version: 1.0.0
+  kind: pattern
+  created: '2026-10-12'
+  author: Pragmatic AI Labs
+  description: A sprint plan never exceeds capacity and never drops work; what does not fit goes to overflow
+  references:
+  - Schwaber and Sutherland (2020) The Scrum Guide
+  - Cohn (2005) Agile Estimating and Planning, Prentice Hall
+equations:
+  capacity_respected:
+    formula: forall s in plan(xs, c, n).sprints, sum(points(i) for i in s) <= c
+    domain: estimates xs in backlog order, capacity c, sprint count n, all whole numbers
+    codomain: Plan of n sprints and an overflow list
+    preconditions:
+    - ids are unique within xs
+    postconditions:
+    - every sprint's load is at most c
+    - an item larger than c is in overflow
+    invariants:
+    - additions are checked, so a huge estimate cannot wrap around
+  work_conserved:
+    formula: multiset(concat(sprints) ++ overflow) = multiset(ids(xs))
+    domain: as capacity_respected
+    codomain: as capacity_respected
+    preconditions:
+    - ids are unique within xs
+    postconditions:
+    - every id is planned or in overflow, exactly once
+    invariants:
+    - with n = 0, overflow = ids(xs)
+  sprint_load:
+    formula: load(xs, p)[k] = sum(points(i) for i in p.sprints[k])
+    domain: the estimates and the plan built from them
+    codomain: one load per sprint
+    preconditions:
+    - p was built from xs
+    postconditions:
+    - '|load(xs, p)| = |p.sprints|'
+    invariants:
+    - load never reads overflow
+  estimates_parse:
+    formula: parse(text) = estimates in file order
+    domain: UTF-8 lines id,points
+    codomain: Ok(Vec<Estimate>) or an error naming the 1-based line
+    preconditions:
+    - text is valid UTF-8
+    postconditions:
+    - file order is kept, because the plan is filled in backlog order
+    - returned ids are distinct
+    invariants:
+    - header, blank and # lines never change the result
+proof_obligations:
+- type: bound
+  property: No sprint is over capacity
+  formal: 'forall xs, c, n, k < n: load(xs, plan(xs, c, n))[k] <= c'
+  applies_to: all
+- type: conservation
+  property: Planning conserves work
+  formal: 'forall xs, c, n: multiset(sprints ++ overflow) = multiset(ids(xs))'
+  applies_to: all
+falsification_tests:
+- id: FALSIFY-CAP-001
+  rule: Capacity is respected
+  prediction: no sprint's load exceeds capacity on the sample backlog
+  test: cargo test -p capacity-plan falsify_no_sprint_over_capacity
+  if_fails: The plan commits the team to more than it can do
+- id: FALSIFY-CAP-002
+  rule: Work is conserved
+  prediction: sprints plus overflow hold every input id exactly once
+  test: cargo test -p capacity-plan falsify_work_is_conserved
+  if_fails: An item vanished from the plan, or was planned twice
+- id: FALSIFY-CAP-003
+  rule: Oversized items overflow
+  prediction: an item larger than capacity lands in overflow
+  test: cargo test -p capacity-plan oversized_item_overflows
+  if_fails: An item that fits nowhere was planned anyway
+- id: FALSIFY-CAP-004
+  rule: The sample estimates parse
+  prediction: the sample file parses to a non-empty list
+  test: cargo test -p capacity-plan sample_file_parses
+  if_fails: The documented file format and the parser disagree
+- id: FALSIFY-CAP-005
+  rule: The capacity boundary is exact
+  prediction: an item one point over capacity overflows, and items that fill capacity exactly are planned
+  test: cargo test -p capacity-plan falsify_capacity_boundary_is_exact
+  if_fails: The plan is off by one at the capacity line
+- id: FALSIFY-CAP-006
+  rule: Duplicate ids are refused
+  prediction: parse refuses a second line with an id already seen
+  test: cargo test -p capacity-plan falsify_duplicate_id_is_refused
+  if_fails: The same item could be planned twice and double count its points
+qa_gate:
+  id: F-CAP-001
+  name: Capacity plan contract
+  description: Plans respect capacity and conserve work
+  checks:
+  - FALSIFY-CAP-001
+  - FALSIFY-CAP-002
+  - FALSIFY-CAP-003
+  - FALSIFY-CAP-004
+  - FALSIFY-CAP-005
+  - FALSIFY-CAP-006
+  pass_criteria: All 6 falsification tests pass
+  falsification: A sprint is over capacity or an item is lost

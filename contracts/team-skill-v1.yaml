@@ -1,0 +1,50 @@
+metadata:
+  version: 1.0.0
+  kind: pattern
+  created: '2026-10-12'
+  author: Pragmatic AI Labs
+  description: A team skill file is usable only when its frontmatter gives a non-blank name and description
+  references:
+  - Anthropic (2025) Agent Skills documentation, SKILL.md frontmatter
+equations:
+  skill_frontmatter_complete:
+    formula: missing(t) = [k in REQUIRED | not exists (k, v) in frontmatter(t) with unquote(v) != ""]
+    domain: t the UTF-8 text of a SKILL.md; REQUIRED = [name, description]; frontmatter is the key-value block between the first two --- lines
+    codomain: the missing keys, in REQUIRED order
+    preconditions:
+    - text is valid UTF-8
+    postconditions:
+    - a file that does not start with --- misses every key
+    - an unclosed frontmatter block misses every key
+    invariants:
+    - surrounding quotes do not make an empty value non-empty
+    - a block scalar (> or |) takes its value from the indented lines below it
+proof_obligations:
+- type: invariant
+  property: A skill without a description is reported
+  formal: 'forall t: no description in frontmatter(t) => "description" in missing(t)'
+  applies_to: all
+- type: invariant
+  property: An unclosed frontmatter block is no frontmatter
+  formal: 'forall t: unclosed(t) => missing(t) = REQUIRED'
+  applies_to: all
+falsification_tests:
+- id: FALSIFY-SKILL-001
+  rule: Description is required
+  prediction: a frontmatter with only a name reports description
+  test: cargo test -p team-skill falsify_missing_description_fails
+  if_fails: The assistant could not tell when to load the skill
+- id: FALSIFY-SKILL-002
+  rule: The frontmatter must be closed
+  prediction: a block with no closing --- reports every key
+  test: cargo test -p team-skill falsify_unclosed_frontmatter_fails
+  if_fails: The whole file body could be read as frontmatter
+qa_gate:
+  id: F-SKILL-001
+  name: Team skill contract
+  description: Every skill can be found by name and description
+  checks:
+  - FALSIFY-SKILL-001
+  - FALSIFY-SKILL-002
+  pass_criteria: Both falsification tests pass
+  falsification: A skill with no description or an unclosed frontmatter passes

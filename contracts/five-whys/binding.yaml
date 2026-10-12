@@ -1,0 +1,15 @@
+version: 1.0.0
+target_crate: five_whys
+bindings:
+- contract: five-whys-v1.yaml
+  equation: chain_well_formed
+  function: validate
+  module_path: five_whys::validate
+  signature: 'pub fn validate(chain: &Chain) -> Result<(), ChainError>'
+  status: implemented
+- contract: five-whys-v1.yaml
+  equation: chain_parse
+  function: parse
+  module_path: five_whys::parse
+  signature: 'pub fn parse(text: &str) -> Result<Chain, String>'
+  status: implemented

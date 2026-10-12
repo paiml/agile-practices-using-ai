@@ -1,0 +1,67 @@
+metadata:
+  version: 1.0.0
+  kind: pattern
+  created: '2026-10-12'
+  author: Pragmatic AI Labs
+  description: A user story is accepted only when it has acceptance criteria and every criterion has a Given, a When and a Then
+  references:
+  - Cohn (2004) User Stories Applied, Addison-Wesley
+  - North (2006) Introducing BDD, Better Software
+equations:
+  story_has_ac:
+    formula: accept(s) <=> |s.criteria| >= 1 AND forall c in s.criteria, given(c) != "" AND when(c) != "" AND then(c) != ""
+    domain: s a Story parsed from text; blank means empty after trimming whitespace
+    codomain: Ok(()) or StoryError naming the story id and the first failing part
+    preconditions:
+    - story.id is the id read from the story line
+    postconditions:
+    - Ok(()) implies every criterion has three non-blank parts
+    - Err(NoCriteria) iff story.criteria is empty
+    invariants:
+    - validate never changes the story
+    - the first failing criterion and part are the ones reported
+  story_parse:
+    formula: parse(text) = stories in file order; each indented line is one criterion of the story above it
+    domain: UTF-8 text in the samples/ story format
+    codomain: Ok(Vec<Story>) or StoryError::Parse naming the 1-based line
+    preconditions:
+    - text is valid UTF-8
+    postconditions:
+    - a criterion line before any story line is Err(Parse)
+    invariants:
+    - blank lines and lines starting with # never change the result
+proof_obligations:
+- type: invariant
+  property: A story with no acceptance criteria is refused
+  formal: 'forall s: |s.criteria| = 0 => validate(s) = Err(NoCriteria)'
+  applies_to: all
+- type: invariant
+  property: A criterion with a blank part is refused
+  formal: 'forall s, c in s.criteria, p in {given, when, then}: blank(c.p) => validate(s) is Err'
+  applies_to: all
+falsification_tests:
+- id: FALSIFY-STORY-001
+  rule: No criteria, no story
+  prediction: validate refuses a story whose criteria list is empty
+  test: cargo test -p story-contract falsify_story_without_criteria_is_refused
+  if_fails: A story with nothing to test against could be marked ready
+- id: FALSIFY-STORY-002
+  rule: Every criterion has a Then
+  prediction: validate refuses a criterion whose Then is only whitespace
+  test: cargo test -p story-contract falsify_blank_then_is_refused
+  if_fails: A criterion with no observable outcome could pass review
+- id: FALSIFY-STORY-003
+  rule: A criterion belongs to a story
+  prediction: parse refuses an indented criterion line that comes before any story line
+  test: cargo test -p story-contract parse_refuses_criterion_without_story
+  if_fails: Criteria could be attached to no story and silently lost
+qa_gate:
+  id: F-STORY-001
+  name: Story contract
+  description: Stories carry testable acceptance criteria
+  checks:
+  - FALSIFY-STORY-001
+  - FALSIFY-STORY-002
+  - FALSIFY-STORY-003
+  pass_criteria: All 3 falsification tests pass
+  falsification: A story with no criteria, or a criterion with a blank part, is accepted

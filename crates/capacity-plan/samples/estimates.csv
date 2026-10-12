@@ -1,0 +1,8 @@
+# id,points  (in backlog order; the plan never reorders)
+id,points
+CARD-IMPORT,5
+SEARCH-FILTER,3
+EXPORT-CSV,2
+SSO-LOGIN,13
+DARK-MODE,3
+AUDIT-LOG,8
