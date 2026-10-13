@@ -6,11 +6,11 @@ roadmap:
   github_issue: 4
   item_type: task
   title: 'release spine: tagged release v0.1.0 cadence per manifest'
-  status: planned
+  status: completed
   priority: medium
   assigned_to: null
   created: 2026-10-12T19:47:15Z
-  updated: 2026-10-12T19:47:15Z
+  updated: 2026-10-13T23:15:00Z
   spec: null
   acceptance_criteria:
   - "docs/roadmaps/roadmap.yaml carries this ticket under epic #3."
@@ -22,9 +22,10 @@ roadmap:
   labels:
   - kind:code
   notes: >-
-    This row is the ticket's record, not its delivery. The PR that adds it
-    meets criterion 1 only. Criteria 2 and 3 are met after it merges: the
-    annotated v0.1.0 tag is cut on a main commit whose CI gate is green, and
-    no tag is moved. A diff cannot carry a tag, so the row stays planned
-    until the tag exists.
+    Delivered. v0.1.0 is an annotated tag (tag object 22e4a694, tagged
+    2026-10-13T22:27:30Z) on main commit 8e192431ac. That commit's CI gate
+    check passed: GitHub Actions run 38472146644, job "gate", conclusion
+    success. No tag was moved. Release cadence, as issue #4 states it: a
+    tagged release every 7 days while there is merged work. Each release
+    gets a new tag; an existing tag is never moved.
   epic: 3
