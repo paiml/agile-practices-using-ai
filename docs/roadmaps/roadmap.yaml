@@ -23,8 +23,9 @@ roadmap:
   - kind:code
   notes: >-
     Delivered. v0.1.0 is an annotated tag (tag object 22e4a694, tagged
-    2026-10-13T22:27:30Z) on main commit 8e192431ac, whose CI gate is green.
-    No tag was moved. Release cadence: a new tagged release every 7 days
-    while there is merged work. Each release gets a new tag; an existing tag
-    is never moved.
+    2026-10-13T22:27:30Z) on main commit 8e192431ac. That commit's CI gate
+    check passed: GitHub Actions run 38472146644, job "gate", conclusion
+    success. No tag was moved. Release cadence, as issue #4 states it: a
+    tagged release every 7 days while there is merged work. Each release
+    gets a new tag; an existing tag is never moved.
   epic: 3
