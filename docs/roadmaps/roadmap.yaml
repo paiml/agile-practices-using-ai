@@ -21,5 +21,10 @@ roadmap:
   estimated_effort: null
   labels:
   - kind:code
-  notes: null
+  notes: >-
+    This row is the ticket's record, not its delivery. The PR that adds it
+    meets criterion 1 only. Criteria 2 and 3 are met after it merges: the
+    annotated v0.1.0 tag is cut on a main commit whose CI gate is green, and
+    no tag is moved. A diff cannot carry a tag, so the row stays planned
+    until the tag exists.
   epic: 3
