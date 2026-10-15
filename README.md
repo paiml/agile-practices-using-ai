@@ -1,5 +1,7 @@
 # Agile Practices Using AI: code examples
 
+![Agile Practices Using AI](docs/hero.png)
+
 Runnable Rust examples for the course **Agile Practices Using AI**. Each
 example takes one agile practice that an AI assistant now helps with, and
 writes down the part a team should not leave to the assistant's judgment as
