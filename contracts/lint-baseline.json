@@ -1,0 +1,4 @@
+{
+  "armed_gates": ["validate", "audit", "score", "verify", "enforce", "enforcement-level", "duplicate-stems", "composition"],
+  "armed_shapes": []
+}
