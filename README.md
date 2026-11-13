@@ -1,3 +1,12 @@
+---
+schema_version: "1.0"
+kind: library
+entrypoints: [crates, Makefile]
+contract_count: 8
+---
+
+<!-- CONTRACT_COUNT_START -->8<!-- CONTRACT_COUNT_END -->
+
 # Agile Practices Using AI: code examples
 
 ![Agile Practices Using AI](docs/hero.png)
@@ -33,17 +42,25 @@ an example too: it runs the same gate on every pull request.
 
 ## Quick start
 
-You need Rust (stable) and, for the contract checks, `pv` and `jq`:
+You need Rust (stable) and, for the contract checks, `pv` and `jq`. The two
+commands below are the ones `.github/workflows/ci.yml` itself runs, verbatim,
+on every pull request and on every push to `main`:
 
-```sh
-cargo install aprender-contracts-cli --version 0.71.1 --locked   # installs pv
+```bash
+cargo install aprender-contracts-cli --version 0.71.1 --locked
+```
 
+```bash
+make gate
+```
+
+Try an example once the gate tooling is installed:
+
+```text
 cargo run -p story-contract -- crates/story-contract/samples/stories.txt
 cargo run -p backlog-rank -- crates/backlog-rank/samples/backlog.csv
 cargo run -p capacity-plan -- crates/capacity-plan/samples/estimates.csv 13 2
 cargo run -p five-whys -- crates/five-whys/samples/shallow.txt   # refused: too shallow
-
-make gate
 ```
 
 ## The gate
@@ -62,6 +79,12 @@ of these pass:
    sprints, checks and so on.
 
 Code that does not pass the gate does not go into this repository.
+
+## pv-readme Contract
+
+This file is graded by `contracts/readme-root.yaml` (a `readme:Readme` SHACL
+shape) via `pv-readme --check`, falsified by `tests/readme-shape-falsifier.sh`
+(paiml/agile-practices-using-ai#11).
 
 ## Licence
 
