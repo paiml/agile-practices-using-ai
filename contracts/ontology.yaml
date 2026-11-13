@@ -27,6 +27,8 @@ roles:
 
 symbols:
   - {name: "∀", kind: operator, doc: "for all"}
+  - {name: "∈", kind: operator, doc: "is a member of"}
+  - {name: "≡", kind: operator, doc: "is identical to"}
 
 worlds:
   committed: {doc: "the tree as committed"}
@@ -35,8 +37,10 @@ agents:
   - human
 entity_types:
   - {name: pv-contract, extractor: pv_contract, implemented: true}
+  - {name: readme, extractor: pv_readme, implemented: true}
 extractors:
   - {name: pv_contract, reader: pv, implemented: true}
+  - {name: pv_readme, reader: pv-readme, implemented: true}
 # Which pv module reads each Σ key (paths inside aprender-contracts, the crate that ships pv).
 readers:
   concepts: ontology/sigma.rs
@@ -57,3 +61,4 @@ not_expressible:
   - {key: extractors, reader: ontology/owl.rs}
 entity_type_target_class:
   pv-contract: ont:Contract
+  readme: readme:Readme
