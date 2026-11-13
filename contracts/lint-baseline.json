@@ -1,0 +1,8 @@
+{
+  "readme": {
+    "verified_commands": [
+      "cargo install aprender-contracts-cli --version 0.71.1 --locked",
+      "make gate"
+    ]
+  }
+}
