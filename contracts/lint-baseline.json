@@ -1,4 +1,8 @@
 {
-  "armed_gates": ["validate", "audit", "score", "verify", "enforce", "enforcement-level", "duplicate-stems", "composition"],
-  "armed_shapes": []
+  "readme": {
+    "verified_commands": [
+      "cargo install aprender-contracts-cli --version 0.71.1 --locked",
+      "make gate"
+    ]
+  }
 }
