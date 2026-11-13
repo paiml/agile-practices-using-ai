@@ -101,3 +101,24 @@ roadmap:
   - kind:docs
   notes: null
   epic: 11
+- id: PMAT-016
+  github_issue: 16
+  item_type: task
+  title: 'pv-lint: print failing rule ids and upload the lint JSON on failure'
+  status: planned
+  priority: high
+  assigned_to: null
+  created: 2026-11-13T17:05:00Z
+  updated: 2026-11-13T17:05:00Z
+  spec: null
+  acceptance_criteria:
+  - "pv-lint prints each failing gate and its rule ids before it exits 1."
+  - "ci.yml uploads target/pv/*.json as an artifact when make gate fails."
+  - "A planted failing JSON makes the step name the rule id."
+  phases: []
+  subtasks: []
+  estimated_effort: null
+  labels:
+  - kind:ci
+  notes: "Found on PR #15: run 43464616283 failed at backlog-rank under pv 0.71.1 and the log names no rule."
+  epic: 3
