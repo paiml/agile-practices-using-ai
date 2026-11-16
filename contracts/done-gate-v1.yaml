@@ -1,0 +1,92 @@
+metadata:
+  version: 1.0.0
+  kind: pattern
+  created: '2026-10-12'
+  author: Pragmatic AI Labs
+  description: The gate says Done exactly when it has at least one check and every check passed; a red check is never reported green
+  references:
+  - Schwaber and Sutherland (2020) The Scrum Guide (Definition of Done)
+  - Humble and Farley (2010) Continuous Delivery, Addison-Wesley
+equations:
+  done_iff_all_green:
+    formula: verdict(rs) = Done <=> |rs| >= 1 AND forall (n, ok) in rs, ok
+    domain: rs the (name, passed) result of each check, in run order
+    codomain: Done, NotDone(red names), or Empty
+    preconditions:
+    - one result per check that was run
+    postconditions:
+    - verdict([]) = Empty
+    - NotDone lists every red check, in run order
+    invariants:
+    - code(Done) = 0, code(NotDone) = 1, code(Empty) = 2
+  check_run:
+    formula: run(c) = true <=> program(c) started AND exited with status 0
+    domain: c a check with a program and arguments; no shell
+    codomain: bool
+    preconditions:
+    - stdin is closed, so a check cannot wait for input
+    postconditions:
+    - a program that cannot start is false
+    invariants:
+    - arguments are passed as a list, never through a shell
+  checks_parse:
+    formula: 'parse(text) = checks in file order from lines "name: program args..."'
+    domain: UTF-8 text
+    codomain: Ok(Vec<Check>) or an error naming the 1-based line
+    preconditions:
+    - text is valid UTF-8
+    postconditions:
+    - every check has a non-empty program
+    invariants:
+    - blank and # lines never change the result
+proof_obligations:
+- type: invariant
+  property: One red check means not Done
+  formal: 'forall rs: exists (n, false) in rs => code(verdict(rs)) != 0'
+  applies_to: all
+- type: invariant
+  property: An empty gate is not Done
+  formal: verdict([]) = Empty and code(Empty) != 0
+  applies_to: all
+- type: invariant
+  property: A check that cannot start is red
+  formal: 'forall c: not startable(program(c)) => run(c) = false'
+  applies_to: all
+falsification_tests:
+- id: FALSIFY-DONE-001
+  rule: One red check fails the gate
+  prediction: one passing and one failing result give NotDone and a non-zero code
+  test: cargo test -p done-gate falsify_one_red_check_is_not_done
+  if_fails: Work could be called Done with a failing check
+- id: FALSIFY-DONE-002
+  rule: An empty gate is not Done
+  prediction: no results give Empty and a non-zero code
+  test: cargo test -p done-gate falsify_empty_gate_is_not_done
+  if_fails: Deleting every check would make everything Done
+- id: FALSIFY-DONE-003
+  rule: A missing program is red
+  prediction: a check whose program is not on PATH returns false
+  test: cargo test -p done-gate falsify_missing_program_is_red
+  if_fails: A typo in the check list would silently pass
+- id: FALSIFY-DONE-004
+  rule: The sample check list parses
+  prediction: the sample checks parse and include a cargo check
+  test: cargo test -p done-gate sample_checks_parse
+  if_fails: The documented file format and the parser disagree
+- id: FALSIFY-DONE-005
+  rule: The exit status decides
+  prediction: run is true for a program that exits 0 and false for one that exits non-zero
+  test: cargo test -p done-gate falsify_exit_status_decides
+  if_fails: A check that starts and then fails would count as green
+qa_gate:
+  id: F-DONE-001
+  name: Done gate contract
+  description: Done means every check ran and passed
+  checks:
+  - FALSIFY-DONE-001
+  - FALSIFY-DONE-002
+  - FALSIFY-DONE-003
+  - FALSIFY-DONE-004
+  - FALSIFY-DONE-005
+  pass_criteria: All 5 falsification tests pass
+  falsification: The gate exits 0 with a red, missing or absent check

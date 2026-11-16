@@ -1,0 +1,9 @@
+version: 1.0.0
+target_crate: working_agreement
+bindings:
+- contract: working-agreement-v1.yaml
+  equation: agreement_complete
+  function: missing_sections
+  module_path: working_agreement::missing_sections
+  signature: 'pub fn missing_sections(text: &str) -> Vec<&''static str>'
+  status: implemented

@@ -1,0 +1,7 @@
+Problem: The sprint demo failed on a story the board showed as Done.
+Why: The story was moved to Done before its tests ran.
+Why: Moving a card did not require the gate to pass.
+Why: The Definition of Done lived in a slide, not in the repository.
+Why: The assistant and the team read different versions of it.
+Why: Nobody owned keeping the working agreement current.
+Action: Put the Definition of Done in CLAUDE.md and run done-gate before a card moves.

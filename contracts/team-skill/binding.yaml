@@ -1,0 +1,9 @@
+version: 1.0.0
+target_crate: team_skill
+bindings:
+- contract: team-skill-v1.yaml
+  equation: skill_frontmatter_complete
+  function: missing_keys
+  module_path: team_skill::missing_keys
+  signature: 'pub fn missing_keys(text: &str) -> Vec<&''static str>'
+  status: implemented

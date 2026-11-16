@@ -1,0 +1,3 @@
+confusing-pricing|4
+no-invoice|4
+slow-checkout|3

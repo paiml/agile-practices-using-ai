@@ -1,0 +1,4 @@
+Problem: The build was red on Monday.
+Why: A test failed.
+Why: The test depended on the clock.
+Action: Fix the test.

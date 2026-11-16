@@ -1,0 +1,59 @@
+# Σ: the signature file for this repository's contracts.
+# `pv ontology export --owl` and `pv ontology tbox` must both exit 0 on it.
+schema: ont-sigma-v1
+
+concepts:
+  Entity: {doc: "anything the ontology can name"}
+  Contract: {doc: "a pv contract file under contracts/"}
+  Code: {doc: "a Rust item in this workspace"}
+  Test: {doc: "a test function a contract cites as its falsifier"}
+  Doc: {doc: "a README.md that describes an example"}
+  Story: {doc: "a user story: an id, a title and its acceptance criteria"}
+  AcceptanceCriterion: {doc: "one Given/When/Then criterion of a story"}
+  BacklogItem: {doc: "an item with value, effort and risk, to be ranked"}
+  Sprint: {doc: "a time box with a capacity in points"}
+  WorkingAgreement: {doc: "the team rules an AI assistant reads, kept in CLAUDE.md"}
+  Skill: {doc: "a packaged procedure an AI assistant loads by name"}
+  Check: {doc: "one command the done gate runs"}
+  Why: {doc: "one answer in a five whys chain"}
+
+roles:
+  binds:
+    {domain: Contract, range: Code, symmetric: false, acyclic: false, doc: "the contract governs this code"}
+  falsified_by:
+    {domain: Contract, range: Test, symmetric: false, acyclic: false, doc: "the test that would refute the contract"}
+  documents:
+    {domain: Doc, range: Code, symmetric: false, acyclic: false, doc: "the prose that describes this code"}
+
+symbols:
+  - {name: "∀", kind: operator, doc: "for all"}
+
+worlds:
+  committed: {doc: "the tree as committed"}
+agents:
+  - pv
+  - human
+entity_types:
+  - {name: pv-contract, extractor: pv_contract, implemented: true}
+extractors:
+  - {name: pv_contract, reader: pv, implemented: true}
+# Which pv module reads each Σ key (paths inside aprender-contracts, the crate that ships pv).
+readers:
+  concepts: ontology/sigma.rs
+  roles: lint/sigma_gate.rs, lint/relations_gate.rs
+  symbols: lint/sigma_symbols.rs
+  worlds: ontology/sigma.rs, lint/valid_under_gate.rs
+  agents: ontology/sigma.rs, lint/evidence_gate.rs
+  entity_types: lint/sigma_gate.rs
+  extractors: ontology/sigma.rs
+  not_expressible: ontology/sigma.rs
+  entity_type_target_class: ontology/shapes.rs
+not_expressible:
+  - {key: acyclic, reader: ontology/owl.rs}
+  - {key: symbols, reader: ontology/owl.rs}
+  - {key: worlds, reader: ontology/owl.rs}
+  - {key: agents, reader: ontology/owl.rs}
+  - {key: entity_types, reader: ontology/owl.rs}
+  - {key: extractors, reader: ontology/owl.rs}
+entity_type_target_class:
+  pv-contract: ont:Contract

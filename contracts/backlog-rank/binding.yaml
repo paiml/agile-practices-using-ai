@@ -1,0 +1,21 @@
+version: 1.0.0
+target_crate: backlog_rank
+bindings:
+- contract: backlog-rank-v1.yaml
+  equation: rank_compare
+  function: compare
+  module_path: backlog_rank::compare
+  signature: 'pub fn compare(a: &Item, b: &Item) -> Ordering'
+  status: implemented
+- contract: backlog-rank-v1.yaml
+  equation: rank_total_order
+  function: rank
+  module_path: backlog_rank::rank
+  signature: 'pub fn rank(items: &[Item]) -> Vec<Item>'
+  status: implemented
+- contract: backlog-rank-v1.yaml
+  equation: backlog_parse
+  function: parse
+  module_path: backlog_rank::parse
+  signature: 'pub fn parse(text: &str) -> Result<Vec<Item>, ParseError>'
+  status: implemented

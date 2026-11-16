@@ -1,0 +1,7 @@
+# id,value,effort,risk  (value and risk 0-10, effort in points >= 1)
+id,value,effort,risk
+CARD-IMPORT,8,3,2
+SEARCH-FILTER,5,2,1
+EXPORT-CSV,3,1,0
+SSO-LOGIN,9,8,7
+DARK-MODE,2,2,0

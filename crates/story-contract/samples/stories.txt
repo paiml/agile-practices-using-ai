@@ -1,0 +1,6 @@
+# Stories drafted from raw sprint-planning notes, then checked.
+STORY-1: As a product owner I want the backlog ranked so that the team pulls the most valuable work first
+  Given a backlog with value and effort scores | When the ranking runs | Then items are ordered by value per unit of effort
+  Given two items with the same score | When the ranking runs | Then the riskier item comes first
+STORY-2: As a developer I want a single Done check so that "done" means the same thing for every pull request
+  Given a pull request | When the done gate runs | Then it passes only if every check passes

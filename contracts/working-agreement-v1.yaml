@@ -1,0 +1,50 @@
+metadata:
+  version: 1.0.0
+  kind: pattern
+  created: '2026-10-12'
+  author: Pragmatic AI Labs
+  description: A working agreement for an AI assistant is complete only when Definition of Done, Branching and Review are present and non-empty
+  references:
+  - Schwaber and Sutherland (2020) The Scrum Guide (Definition of Done)
+  - Derby and Larsen (2006) Agile Retrospectives, Pragmatic Bookshelf (working agreements)
+equations:
+  agreement_complete:
+    formula: missing(t) = [n in REQUIRED | not (heading(t, "## " + n) AND nonblank_body(t, n))]
+    domain: t the UTF-8 text of a CLAUDE.md; REQUIRED = [Definition of Done, Branching, Review]
+    codomain: the missing section names, in REQUIRED order
+    preconditions:
+    - text is valid UTF-8
+    postconditions:
+    - empty result iff every required section has a non-blank line before the next level 1 or 2 heading
+    invariants:
+    - level 3 and deeper headings are part of the section body
+    - when a heading appears more than once, every occurrence needs a body
+proof_obligations:
+- type: invariant
+  property: A missing Definition of Done is reported
+  formal: 'forall t: not heading(t, "## Definition of Done") => "Definition of Done" in missing(t)'
+  applies_to: all
+- type: invariant
+  property: A heading alone is not a section
+  formal: 'forall t, n: heading(t, n) and blank_body(t, n) => n in missing(t)'
+  applies_to: all
+falsification_tests:
+- id: FALSIFY-WA-001
+  rule: Definition of Done is required
+  prediction: removing the Definition of Done section reports exactly that section
+  test: cargo test -p working-agreement falsify_missing_definition_of_done_fails
+  if_fails: The assistant could work with no shared meaning of Done
+- id: FALSIFY-WA-002
+  rule: An empty section does not count
+  prediction: a Review heading with a blank body reports Review
+  test: cargo test -p working-agreement falsify_empty_section_fails
+  if_fails: A placeholder heading would satisfy the lint
+qa_gate:
+  id: F-WA-001
+  name: Working agreement contract
+  description: The agreement carries Done, Branching and Review
+  checks:
+  - FALSIFY-WA-001
+  - FALSIFY-WA-002
+  pass_criteria: Both falsification tests pass
+  falsification: An agreement missing a required section passes the lint
