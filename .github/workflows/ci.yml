@@ -1,0 +1,43 @@
+# ci: one job, `gate`, which is the status check the branch ruleset on main
+# requires. It runs `make gate`, the repository's Definition of Done: fmt,
+# clippy, tests, the pv contract checks and every lab check. There is no
+# second job: `make gate` already runs `make labs`, so a separate labs job
+# would run the same checks twice.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      # Caches ~/.cargo (registry and installed binaries, so pv is compiled
+      # once per cache key, not once per run) and target/.
+      - uses: Swatinem/rust-cache@v2
+      - name: Tools the gate needs are present
+        run: |
+          command -v jq
+          command -v sqlite3
+          command -v curl
+          command -v cc
+      - name: Install pv
+        run: |
+          cargo install aprender-contracts-cli --version 0.71.1 --locked
+          pv --version
+      - name: Gate
+        run: make gate

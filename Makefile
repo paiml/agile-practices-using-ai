@@ -1,4 +1,5 @@
-# `make gate` is the Definition of Done for this repository. Run it locally
+# `make gate` is the Definition of Done for this repository. CI runs it on every
+# pull request (.github/workflows/ci.yml, job `gate`); run it locally
 # before you push.
 
 CRATES := $(notdir $(wildcard crates/*))
